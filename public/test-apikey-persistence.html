@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Key Persistence Test</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .pass {
+            color: green;
+            font-weight: bold;
+        }
+        .fail {
+            color: red;
+            font-weight: bold;
+        }
+        .info {
+            color: #666;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button.clear {
+            background: #f44336;
+        }
+        button.clear:hover {
+            background: #da190b;
+        }
+        input {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 400px;
+        }
+        #log {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>API Key Persistence Test Suite</h1>
+    <p>This page tests the localStorage implementation for API key persistence.</p>
+
+    <div class="test-section">
+        <h2>Manual Test Controls</h2>
+        <input type="text" id="apiKeyInput" placeholder="Enter test API key">
+        <button onclick="saveApiKey()">Save API Key</button>
+        <button class="clear" onclick="clearApiKey()">Clear API Key</button>
+        <button onclick="refreshTest()">Reload Page</button>
+        <button onclick="runAllTests()">Run All Tests</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Log</h2>
+        <div id="log"></div>
+    </div>
+
+    <script>
+        const API_KEY_STORAGE = 'mantle_gemini_api_key';
+        let testResults = [];
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logDiv = document.getElementById('log');
+            logDiv.textContent += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function addResult(testName, passed, message) {
+            testResults.push({ test: testName, passed, message });
+            const resultsDiv = document.getElementById('results');
+            const className = passed ? 'pass' : 'fail';
+            resultsDiv.innerHTML += `<p class="${className}">${passed ? '✓' : '✗'} ${testName}: ${message}</p>`;
+        }
+
+        // Test 1: Save API key to localStorage
+        function testSaveApiKey() {
+            log('Test 1: Saving API key to localStorage...');
+            const testKey = 'test_api_key_12345';
+            localStorage.setItem(API_KEY_STORAGE, testKey);
+            const retrieved = localStorage.getItem(API_KEY_STORAGE);
+
+            if (retrieved === testKey) {
+                addResult('Save API Key', true, 'API key saved and retrieved correctly');
+                log('✓ API key saved: ' + retrieved);
+                return true;
+            } else {
+                addResult('Save API Key', false, 'Failed to save API key');
+                log('✗ Failed to save API key');
+                return false;
+            }
+        }
+
+        // Test 2: API key persists after page reload
+        function testPersistenceAfterReload() {
+            log('Test 2: Checking if API key persists from previous session...');
+            const existingKey = localStorage.getItem(API_KEY_STORAGE);
+
+            if (existingKey && existingKey.length > 0) {
+                addResult('API Key Persistence', true, 'API key persisted across page reload: ' + existingKey);
+                log('✓ API key persisted: ' + existingKey);
+                document.getElementById('apiKeyInput').value = existingKey;
+                return true;
+            } else {
+                addResult('API Key Persistence', false, 'No API key found - run Test 1 first');
+                log('✗ No API key found in localStorage');
+                return false;
+            }
+        }
+
+        // Test 3: Clear API key from localStorage
+        function testClearApiKey() {
+            log('Test 3: Clearing API key from localStorage...');
+
+            // First save a key
+            const testKey = 'test_api_key_to_clear';
+            localStorage.setItem(API_KEY_STORAGE, testKey);
+            log('Saved temporary key: ' + testKey);
+
+            // Then clear it
+            localStorage.removeItem(API_KEY_STORAGE);
+            const retrieved = localStorage.getItem(API_KEY_STORAGE);
+
+            if (retrieved === null) {
+                addResult('Clear API Key', true, 'API key successfully removed from localStorage');
+                log('✓ API key cleared successfully');
+                return true;
+            } else {
+                addResult('Clear API Key', false, 'Failed to clear API key');
+                log('✗ API key still exists: ' + retrieved);
+                return false;
+            }
+        }
+
+        // Test 4: API key storage key matches expected value
+        function testStorageKeyName() {
+            log('Test 4: Verifying storage key name...');
+            const expectedKey = 'mantle_gemini_api_key';
+
+            if (API_KEY_STORAGE === expectedKey) {
+                addResult('Storage Key Name', true, 'Storage key matches expected: ' + expectedKey);
+                log('✓ Storage key is correct: ' + API_KEY_STORAGE);
+                return true;
+            } else {
+                addResult('Storage Key Name', false, 'Storage key mismatch');
+                log('✗ Storage key incorrect');
+                return false;
+            }
+        }
+
+        // Test 5: Empty string handling
+        function testEmptyStringHandling() {
+            log('Test 5: Testing empty string handling...');
+            localStorage.setItem(API_KEY_STORAGE, '');
+            const retrieved = localStorage.getItem(API_KEY_STORAGE);
+
+            if (retrieved === '') {
+                addResult('Empty String Handling', true, 'Empty string stored correctly');
+                log('✓ Empty string handled correctly');
+                localStorage.removeItem(API_KEY_STORAGE);
+                return true;
+            } else {
+                addResult('Empty String Handling', false, 'Empty string not stored correctly');
+                log('✗ Empty string handling failed');
+                return false;
+            }
+        }
+
+        // Manual controls
+        function saveApiKey() {
+            const key = document.getElementById('apiKeyInput').value;
+            if (key) {
+                localStorage.setItem(API_KEY_STORAGE, key);
+                log('Manual: Saved API key: ' + key);
+                addResult('Manual Save', true, 'Saved: ' + key);
+            } else {
+                log('Manual: No API key to save');
+            }
+        }
+
+        function clearApiKey() {
+            localStorage.removeItem(API_KEY_STORAGE);
+            log('Manual: Cleared API key');
+            addResult('Manual Clear', true, 'API key cleared');
+            document.getElementById('apiKeyInput').value = '';
+        }
+
+        function refreshTest() {
+            log('Manual: Reloading page in 2 seconds...');
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        }
+
+        function runAllTests() {
+            log('=== Running All Tests ===');
+            document.getElementById('results').innerHTML = '';
+            testResults = [];
+
+            testStorageKeyName();
+            testSaveApiKey();
+            testEmptyStringHandling();
+            testClearApiKey();
+
+            log('=== Tests Complete ===');
+            log('Note: For Test 2 (persistence), reload the page after running Test 1');
+        }
+
+        // On page load, check for existing API key
+        window.onload = function() {
+            log('=== Page Loaded ===');
+            log('Storage key being used: ' + API_KEY_STORAGE);
+
+            // Check if API key exists from previous session
+            const existingKey = localStorage.getItem(API_KEY_STORAGE);
+            if (existingKey) {
+                log('Found existing API key: ' + existingKey);
+                document.getElementById('apiKeyInput').value = existingKey;
+                addResult('Auto-detect API Key', true, 'Found: ' + existingKey);
+            } else {
+                log('No existing API key found');
+                addResult('Auto-detect API Key', false, 'No key found (fresh start)');
+            }
+
+            log('Click "Run All Tests" to execute test suite');
+        };
+    </script>
+</body>
+</html>

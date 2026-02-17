@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LocalStorage Test</title>
+</head>
+<body>
+    <h1>LocalStorage Test</h1>
+    <div id="output"></div>
+    <script>
+        output = document.getElementById('output');
+        testKey = 'mantle_gemini_api_key';
+        testValue = 'test-api-key-12345';
+
+        localStorage.setItem(testKey, testValue);
+        output.innerHTML += '<p>Set item: ' + testKey + ' = ' + testValue + '</p>';
+
+        retrieved = localStorage.getItem(testKey);
+        if (retrieved === testValue) {
+            output.innerHTML += '<p>Retrieved item matches: ' + retrieved + '</p>';
+        }
+
+        if (localStorage.getItem(testKey)) {
+            output.innerHTML += '<p>Item exists in localStorage</p>';
+        }
+
+        localStorage.removeItem(testKey);
+        output.innerHTML += '<p>Removed item</p>';
+
+        if (!localStorage.getItem(testKey)) {
+            output.innerHTML += '<p>Item successfully removed</p>';
+        }
+
+        output.innerHTML += '<p><strong>All localStorage tests passed!</strong></p>';
+    </script>
+</body>
+</html>

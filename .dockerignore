@@ -1,0 +1,12 @@
+node_modules
+dist
+.git
+.playwright
+.playwright-cli
+test-results
+tests
+*.md
+*.txt
+.claude
+.autoforge
+.agent
