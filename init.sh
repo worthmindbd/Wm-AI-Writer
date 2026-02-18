@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Mantle SEO Writer - Development Environment Setup Script
+# Wm AI Writer - Development Environment Setup Script
 # This script initializes the development environment for the SEO content creation tool
 
 set -e  # Exit on error
 
-echo "🌱 Mantle SEO Writer - Development Setup"
+echo "🌱 Wm AI Writer - Development Setup"
 echo "=========================================="
 echo ""
 

@@ -9,7 +9,7 @@ import ImagePromptsPanel from './ImagePrompts'
 interface Props { content: GeneratedContent; onBack: () => void; onContentUpdate: (c: GeneratedContent) => void }
 
 export default function ContentGenerator({ content, onBack, onContentUpdate }: Props) {
-  const { apiKey } = useApiKey()
+  const { apiKey, selectedModel } = useApiKey()
   const { showToast } = useToast()
   const [isEditing, setIsEditing] = useState(false)
   const [editedContent, setEditedContent] = useState(content.content)
@@ -22,7 +22,7 @@ export default function ContentGenerator({ content, onBack, onContentUpdate }: P
   useEffect(() => {
     if (imgPrompts.length === 0 && apiKey && content.content) {
       setImgLoading(true)
-      generateImagePrompts(apiKey, content.title, content.content, 5)
+      generateImagePrompts(apiKey, content.title, content.content, 5, selectedModel)
         .then(p => setImgPrompts(p))
         .catch(() => showToast('Could not generate image prompts', 'error'))
         .finally(() => setImgLoading(false))
@@ -49,9 +49,9 @@ export default function ContentGenerator({ content, onBack, onContentUpdate }: P
     try {
       const newContent = await generateContent(apiKey, {
         title: content.title, focusKeyword: content.focusKeyword, lsiKeywords: content.lsiKeywords,
-        wordCount: content.targetWordCount, tone: content.tone, format: content.format, language: content.language, targetAudience: content.targetAudience || undefined, internalLinks: content.internalLinks,
+        wordCount: content.targetWordCount, tone: content.tone, format: content.format, language: content.language, targetAudience: content.targetAudience || undefined, internalLinks: content.internalLinks, model: selectedModel,
       })
-      const meta = await generateMetaDescription(apiKey, content.title, content.focusKeyword)
+      const meta = await generateMetaDescription(apiKey, content.title, content.focusKeyword, selectedModel)
       const wc = newContent.split(/\s+/).length
       const updated: GeneratedContent = { ...content, content: newContent, metaDescription: meta, wordCount: wc, readingTime: Math.ceil(wc / 200), imagePrompts: undefined }
       setEditedContent(newContent)
@@ -60,7 +60,7 @@ export default function ContentGenerator({ content, onBack, onContentUpdate }: P
       showToast('Content regenerated!', 'success')
       // Re-generate image prompts
       setImgLoading(true)
-      generateImagePrompts(apiKey, content.title, newContent, 5)
+      generateImagePrompts(apiKey, content.title, newContent, 5, selectedModel)
         .then(p => setImgPrompts(p)).catch(() => { }).finally(() => setImgLoading(false))
     } catch (err) { showToast(err instanceof Error ? err.message : 'Regeneration failed', 'error') }
     finally { setRegenerating(false) }

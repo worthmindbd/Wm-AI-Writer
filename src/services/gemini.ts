@@ -1,6 +1,29 @@
 import { buildAvoidancePrompt } from '../utils/ai-phrases'
 
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
+const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models'
+
+export interface GeminiModel {
+  id: string
+  label: string
+  recommended?: boolean
+}
+
+export const GEMINI_MODELS: GeminiModel[] = [
+  { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', recommended: true },
+  { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+  { id: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash-Lite' },
+  { id: 'gemini-3.0-flash-preview', label: 'Gemini 3 Flash Preview' },
+  { id: 'gemini-3.0-pro-preview', label: 'Gemini 3 Pro Preview' },
+  { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
+  { id: 'gemini-2.0-flash-lite', label: 'Gemini 2.0 Flash-Lite' },
+  { id: 'gemini-exp-1206', label: 'Gemini Experimental 1206' },
+]
+
+export const DEFAULT_MODEL = 'gemini-2.5-flash'
+
+function getModelUrl(model: string): string {
+  return `${GEMINI_API_BASE}/${model}:generateContent`
+}
 
 interface GeminiRequest {
   contents: Array<{ parts: Array<{ text: string }> }>
@@ -12,14 +35,15 @@ interface GeminiResponse {
   candidates: Array<{ content: { parts: Array<{ text: string }> }; finishReason: string }>
 }
 
-export async function callGeminiAPI(apiKey: string, prompt: string, options?: { tools?: Array<Record<string, unknown>> }): Promise<string> {
+export async function callGeminiAPI(apiKey: string, prompt: string, options?: { tools?: Array<Record<string, unknown>>; model?: string }): Promise<string> {
+  const model = options?.model || DEFAULT_MODEL
   const requestBody: GeminiRequest = {
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: { temperature: 0.7, topK: 40, topP: 0.95, maxOutputTokens: 8192 },
   }
   if (options?.tools) requestBody.tools = options.tools
 
-  const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+  const response = await fetch(`${getModelUrl(model)}?key=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(requestBody),
@@ -39,15 +63,15 @@ export async function callGeminiAPI(apiKey: string, prompt: string, options?: { 
   return data.candidates[0].content.parts[0].text
 }
 
-export async function generateLSIKeywords(apiKey: string, focusKeyword: string): Promise<string> {
+export async function generateLSIKeywords(apiKey: string, focusKeyword: string, model?: string): Promise<string> {
   const prompt = `For the focus keyword "${focusKeyword}", generate 8-10 LSI (Latent Semantic Indexing) keywords.
 These should be semantically related terms that search engines associate with the topic.
 Return ONLY the keywords separated by commas, nothing else. No numbering, no explanations.`
-  const response = await callGeminiAPI(apiKey, prompt)
+  const response = await callGeminiAPI(apiKey, prompt, { model })
   return response.trim().replace(/\n/g, ', ')
 }
 
-export async function generateTitles(apiKey: string, focusKeyword: string, lsiKeywords: string[]): Promise<string[]> {
+export async function generateTitles(apiKey: string, focusKeyword: string, lsiKeywords: string[], model?: string): Promise<string[]> {
   const lsiPart = lsiKeywords.length > 0 ? `\nRelated keywords to weave in naturally: ${lsiKeywords.join(', ')}.` : ''
   const prompt = `You are an SEO expert and professional blog title writer.
 
@@ -66,15 +90,15 @@ Title rules:
 
 Return ONLY the 5 titles, one per line, numbered 1-5. No explanations.`
 
-  const response = await callGeminiAPI(apiKey, prompt, { tools: [{ google_search: {} }] })
+  const response = await callGeminiAPI(apiKey, prompt, { tools: [{ google_search: {} }], model })
   return response.split('\n').filter(l => l.trim()).map(l => l.replace(/^\d+\.\s*/, '').replace(/^\*\*|\*\*$/g, '').trim()).filter(l => l.length > 5).slice(0, 5)
 }
 
 export async function generateContent(apiKey: string, params: {
   title: string; focusKeyword: string; lsiKeywords: string[]
-  wordCount: number; tone: string; format: string; language: string; targetAudience?: string; internalLinks?: string[]
+  wordCount: number; tone: string; format: string; language: string; targetAudience?: string; internalLinks?: string[]; model?: string
 }): Promise<string> {
-  const { title, focusKeyword, lsiKeywords, wordCount, tone, format, language, targetAudience, internalLinks } = params
+  const { title, focusKeyword, lsiKeywords, wordCount, tone, format, language, targetAudience, internalLinks, model } = params
   const audienceLine = targetAudience ? `\nTarget Audience: ${targetAudience}` : ''
   const audienceReq = targetAudience ? `\n- Tailor the language, examples, and depth to suit the target audience` : ''
 
@@ -112,15 +136,15 @@ Formatting rules (VERY IMPORTANT):
 ${buildAvoidancePrompt()}
 
 Write the full article now:`
-  return await callGeminiAPI(apiKey, prompt)
+  return await callGeminiAPI(apiKey, prompt, { model })
 }
 
-export async function generateMetaDescription(apiKey: string, title: string, focusKeyword: string): Promise<string> {
+export async function generateMetaDescription(apiKey: string, title: string, focusKeyword: string, model?: string): Promise<string> {
   const prompt = `Write a compelling SEO meta description (max 155 characters) for "${title}" with keyword "${focusKeyword}". Return ONLY the description.`
-  return (await callGeminiAPI(apiKey, prompt)).trim().substring(0, 155)
+  return (await callGeminiAPI(apiKey, prompt, { model })).trim().substring(0, 155)
 }
 
-export async function generateImagePrompts(apiKey: string, title: string, content: string, sectionCount: number): Promise<Array<{ prompt: string; section: string }>> {
+export async function generateImagePrompts(apiKey: string, title: string, content: string, sectionCount: number, model?: string): Promise<Array<{ prompt: string; section: string }>> {
   const numImages = Math.min(Math.max(3, Math.floor(content.split(/\s+/).length / 300)), sectionCount + 3)
   const prompt = `For an article titled "${title}", generate ${numImages} image prompts.
 The first 3 should be thumbnail/hero image options.
@@ -132,7 +156,7 @@ PROMPT: [detailed, descriptive prompt for AI image generation]
 
 Generate ${numImages} image prompts now:`
 
-  const response = await callGeminiAPI(apiKey, prompt)
+  const response = await callGeminiAPI(apiKey, prompt, { model })
   const results: Array<{ prompt: string; section: string }> = []
   const blocks = response.split(/\n(?=SECTION:)/i)
   for (const block of blocks) {
@@ -151,9 +175,9 @@ Generate ${numImages} image prompts now:`
   return results
 }
 
-export async function validateApiKey(apiKey: string): Promise<boolean> {
+export async function validateApiKey(apiKey: string, model?: string): Promise<boolean> {
   try {
-    const r = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+    const r = await fetch(`${getModelUrl(model || DEFAULT_MODEL)}?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents: [{ parts: [{ text: 'Hi' }] }] }),

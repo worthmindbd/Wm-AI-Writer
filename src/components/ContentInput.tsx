@@ -9,7 +9,7 @@ interface Props { onContentGenerated: (content: GeneratedContent) => void }
 type Step = 'keywords' | 'titles' | 'options'
 
 export default function ContentInput({ onContentGenerated }: Props) {
-  const { apiKey, isConfigured } = useApiKey()
+  const { apiKey, isConfigured, selectedModel } = useApiKey()
   const { showToast } = useToast()
   const [step, setStep] = useState<Step>('keywords')
   const [focusKeyword, setFocusKeyword] = useState('')
@@ -34,7 +34,7 @@ export default function ContentInput({ onContentGenerated }: Props) {
     if (!isConfigured) { showToast('Please configure your API key first', 'error'); return }
     setLoading(true)
     try {
-      const t = await generateTitles(apiKey, focusKeyword, lsiArr)
+      const t = await generateTitles(apiKey, focusKeyword, lsiArr, selectedModel)
       setTitles(t); setStep('titles')
     } catch (err) { showToast(err instanceof Error ? err.message : 'Failed to generate titles', 'error') }
     finally { setLoading(false) }
@@ -44,8 +44,8 @@ export default function ContentInput({ onContentGenerated }: Props) {
     if (!isConfigured) { showToast('Please configure your API key first', 'error'); return }
     setLoading(true)
     try {
-      const content = await generateContent(apiKey, { title: selectedTitle, focusKeyword, lsiKeywords: lsiArr, wordCount, tone, format, language, targetAudience: targetAudience.trim() || undefined, internalLinks: sitemapLinks.length > 0 ? sitemapLinks : undefined })
-      const meta = await generateMetaDescription(apiKey, selectedTitle, focusKeyword)
+      const content = await generateContent(apiKey, { title: selectedTitle, focusKeyword, lsiKeywords: lsiArr, wordCount, tone, format, language, targetAudience: targetAudience.trim() || undefined, internalLinks: sitemapLinks.length > 0 ? sitemapLinks : undefined, model: selectedModel })
+      const meta = await generateMetaDescription(apiKey, selectedTitle, focusKeyword, selectedModel)
       const slug = selectedTitle.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').substring(0, 60)
       const wc = content.split(/\s+/).length
       onContentGenerated({
@@ -90,7 +90,7 @@ export default function ContentInput({ onContentGenerated }: Props) {
                     if (!isConfigured) { showToast('Please configure your API key first', 'error'); return }
                     setLsiLoading(true)
                     try {
-                      const suggested = await generateLSIKeywords(apiKey, focusKeyword.trim())
+                      const suggested = await generateLSIKeywords(apiKey, focusKeyword.trim(), selectedModel)
                       setLsiKeywords(prev => prev ? `${prev}, ${suggested}` : suggested)
                       showToast('LSI keywords generated!', 'success')
                     } catch (err) { showToast(err instanceof Error ? err.message : 'Failed to generate LSI keywords', 'error') }

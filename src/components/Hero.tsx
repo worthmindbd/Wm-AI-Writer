@@ -4,7 +4,7 @@ export default function Hero({ onStart, compact = false }: HeroProps) {
   if (compact) {
     return (
       <div className="text-center py-4 mb-2">
-        <h1 className="text-lg sm:text-xl font-bold text-forest dark:text-forest-light tracking-tight">Mantle SEO Writer</h1>
+        <h1 className="text-lg sm:text-xl font-bold text-forest dark:text-forest-light tracking-tight">Wm AI Writer</h1>
       </div>
     )
   }

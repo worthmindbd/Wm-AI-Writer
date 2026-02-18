@@ -1,11 +1,12 @@
 import { useContext, useState } from 'react'
 import { ApiKeyContext } from '../contexts/ApiKeyContext'
 import { useToast } from '../contexts/ToastContext'
+import { GEMINI_MODELS } from '../services/gemini'
 
 export default function ApiKeyInput() {
   const context = useContext(ApiKeyContext)
   if (!context) throw new Error('ApiKeyInput must be used within ApiKeyProvider')
-  const { apiKey, setApiKey, isConfigured, showKey, toggleShowKey, testApiKey } = context
+  const { apiKey, setApiKey, isConfigured, showKey, toggleShowKey, testApiKey, selectedModel, setSelectedModel } = context
   const { showToast } = useToast()
   const [isTesting, setIsTesting] = useState(false)
 
@@ -31,6 +32,21 @@ export default function ApiKeyInput() {
             className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 text-xs font-medium text-forest dark:text-forest-light hover:bg-forest/5 dark:hover:bg-forest-light/10 rounded-lg transition-colors">
             {showKey ? 'Hide' : 'Show'}
           </button>
+        </div>
+        <div>
+          <label htmlFor="model-select" className="block text-xs font-medium mb-1.5 text-earth-dark/60 dark:text-light-cream/60">AI Model</label>
+          <select
+            id="model-select"
+            value={selectedModel}
+            onChange={e => setSelectedModel(e.target.value)}
+            className="input-field text-sm"
+          >
+            {GEMINI_MODELS.map(m => (
+              <option key={m.id} value={m.id}>
+                {m.label}{m.recommended ? ' ⭐ Recommended' : ''}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="flex gap-2">
           <button onClick={handleTest} disabled={!apiKey || isTesting} className="btn-secondary flex-1 text-sm">

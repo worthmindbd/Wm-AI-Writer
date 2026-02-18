@@ -1,10 +1,10 @@
-# Mantle SEO Writer
+# Wm AI Writer
 
 A stateless, single-page SEO content creation tool powered by Google Gemini API.
 
 ## Overview
 
-Mantle SEO Writer helps content creators generate SEO-optimized articles with:
+Wm AI Writer helps content creators generate SEO-optimized articles with:
 - AI-powered content generation using Google Gemini API
 - Smart keyword integration (focus + LSI keywords)
 - Automatic image prompt suggestions mapped to content sections
@@ -15,7 +15,7 @@ Mantle SEO Writer helps content creators generate SEO-optimized articles with:
 
 ```bash
 # Clone or navigate to the project directory
-cd Mantle-SEO-Writer
+cd Wm-AI-Writer
 
 # Run the initialization script
 ./init.sh
@@ -111,7 +111,7 @@ The script will:
 
 ### Project Structure
 ```
-Mantle-SEO-Writer/
+Wm-AI-Writer/
 ├── src/
 │   ├── components/      # React components
 │   ├── hooks/          # Custom React hooks
