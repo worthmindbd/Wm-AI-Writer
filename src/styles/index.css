@@ -74,6 +74,13 @@
            text-light-cream
            focus:ring-forest-light/50 focus:border-forest-light/50 focus:bg-white/10;
   }
+  .dark select.input-field {
+    color-scheme: dark;
+  }
+  .dark select.input-field option {
+    background-color: #252B23;
+    color: #E8E6DD;
+  }
 }
 
 @layer utilities {

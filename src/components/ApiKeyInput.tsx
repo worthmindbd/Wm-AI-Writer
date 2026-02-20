@@ -43,7 +43,7 @@ export default function ApiKeyInput() {
           >
             {GEMINI_MODELS.map(m => (
               <option key={m.id} value={m.id}>
-                {m.label}{m.recommended ? ' ⭐ Recommended' : ''}
+                {m.label} - {m.tier === 'free' ? 'Free' : 'Paid'}{m.recommended ? ' (Recommended)' : ''}
               </option>
             ))}
           </select>
