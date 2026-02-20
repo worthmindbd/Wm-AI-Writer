@@ -1,6 +1,6 @@
-interface HeroProps { onStart: () => void; compact?: boolean }
+interface HeroProps { onChooseMode: (mode: 'write' | 'rewrite') => void; compact?: boolean }
 
-export default function Hero({ onStart, compact = false }: HeroProps) {
+export default function Hero({ onChooseMode, compact = false }: HeroProps) {
   if (compact) {
     return (
       <div className="text-center py-4 mb-2">
@@ -24,19 +24,24 @@ export default function Hero({ onStart, compact = false }: HeroProps) {
         </div>
 
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-earth-dark dark:text-light-cream mb-6 leading-[1.1] tracking-tight text-balance">
-          Create <span className="text-transparent bg-clip-text bg-gradient-to-r from-forest to-moss dark:from-forest-light dark:to-sage">SEO-Optimized</span> Content with AI
+          Create & Rewrite <span className="text-transparent bg-clip-text bg-gradient-to-r from-forest to-moss dark:from-forest-light dark:to-sage">SEO-Optimized</span> Content
         </h1>
 
         <p className="text-lg sm:text-xl text-earth-dark/60 dark:text-light-cream/60 mb-10 max-w-2xl mx-auto leading-relaxed text-balance">
-          Generate engaging, search-engine-friendly articles with smart keyword integration, image prompts, and WordPress-ready formatting.
+          Write fresh AI-powered articles or rewrite existing posts for better SEO — with smart keyword integration, image prompts, and WordPress-ready formatting.
         </p>
 
-        <button onClick={onStart} className="btn-primary text-lg px-10 py-4 rounded-2xl shadow-xl shadow-forest/20 hover:shadow-2xl hover:shadow-forest/30">
-          Start Creating Content <span className="ml-2">→</span>
-        </button>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <button onClick={() => onChooseMode('write')} className="btn-primary text-lg px-10 py-4 rounded-2xl shadow-xl shadow-forest/20 hover:shadow-2xl hover:shadow-forest/30">
+            ✍️ Write New Content
+          </button>
+          <button onClick={() => onChooseMode('rewrite')} className="btn-secondary text-lg px-10 py-4 rounded-2xl shadow-lg">
+            🔄 Rewrite Existing Post
+          </button>
+        </div>
 
         <div className="flex flex-wrap justify-center gap-3 mt-10">
-          {['SEO Optimized', 'Image Prompts', 'Multi-Language', 'WordPress Ready'].map(f => (
+          {['SEO Optimized', 'Content Rewriting', 'Image Prompts', 'Multi-Language', 'Internal Linking', 'WordPress Ready'].map(f => (
             <span key={f} className="px-3 py-1.5 rounded-full text-xs font-medium glass text-earth-dark/60 dark:text-light-cream/60">{f}</span>
           ))}
         </div>

@@ -23,6 +23,12 @@ export const GEMINI_MODELS: GeminiModel[] = [
 
 export const DEFAULT_MODEL = 'gemini-2.5-flash'
 
+// CORS proxies for fetching post content
+const CORS_PROXIES = [
+  (url: string) => `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`,
+  (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+]
+
 function getModelUrl(model: string): string {
   return `${GEMINI_API_BASE}/${model}:generateContent`
 }
@@ -109,7 +115,7 @@ export async function generateContent(apiKey: string, params: {
   if (internalLinks && internalLinks.length > 0) {
     const links = internalLinks.slice(0, 80).join('\n')
     internalLinkSection = `\n\nInternal Links Available (from the author's website):\n${links}`
-    internalLinkReq = `\n- Naturally embed 3-5 internal links from the list above as markdown hyperlinks [anchor text](url) where they are contextually relevant`
+    internalLinkReq = `\n- Naturally embed a MAXIMUM of 2 to 3 internal links from the list above as markdown hyperlinks [anchor text](url) where they are contextually relevant`
   }
 
   const prompt = `Write a ${format} titled "${title}" in ${language}.
@@ -121,7 +127,8 @@ Target Word Count: ${wordCount}${audienceLine}${internalLinkSection}
 
 Content requirements:
 - Start with a short, engaging intro paragraph (2-3 sentences, no heading)
-- Use ## for section headings — keep them SHORT (3-5 words, no colons)
+- Do NOT use # (H1) anywhere; the post title is already an H1. Start with ## (H2) and go down to #### (H4) max.
+- Use ## for main section headings — keep them SHORT (3-5 words, no colons)
 - Use ### sparingly, only when a section truly needs sub-points
 - Write a brief conclusion with a call-to-action
 - Naturally work in the focus keyword and related keywords
@@ -138,6 +145,96 @@ Formatting rules (VERY IMPORTANT):
 ${buildAvoidancePrompt()}
 
 Write the full article now:`
+  return await callGeminiAPI(apiKey, prompt, { model })
+}
+
+export async function fetchPostContent(url: string): Promise<string> {
+  let html = ''
+
+  // Try proxies to bypass CORS
+  for (const makeProxyUrl of CORS_PROXIES) {
+    try {
+      const proxyUrl = makeProxyUrl(url)
+      const resp = await fetch(proxyUrl)
+      if (resp.ok) {
+        html = await resp.text()
+        break
+      }
+    } catch { /* this proxy failed, try next */ }
+  }
+
+  if (!html) {
+    throw new Error('Could not fetch content from the provided URL. Ensure it is accessible.')
+  }
+
+  // Very basic HTML to text extraction (strip scripts, styles, tags)
+  const text = html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
+    .replace(/<nav\b[^<]*(?:(?!<\/nav>)<[^<]*)*<\/nav>/gi, ' ')
+    .replace(/<header\b[^<]*(?:(?!<\/header>)<[^<]*)*<\/header>/gi, ' ')
+    .replace(/<footer\b[^<]*(?:(?!<\/footer>)<[^<]*)*<\/footer>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  return text
+}
+
+export async function rewriteContent(apiKey: string, params: {
+  originalContent: string; focusKeyword: string; lsiKeywords: string[]
+  tone: string; language: string; internalLinks?: string[]; model?: string
+  targetAudience?: string; lengthStrategy?: 'keep_same' | 'make_longer' | 'make_shorter'
+}): Promise<string> {
+  const { originalContent, focusKeyword, lsiKeywords, tone, language, internalLinks, model, targetAudience, lengthStrategy } = params
+
+  const lsiReq = lsiKeywords.length > 0
+    ? `\n- Naturally integrate these LSI keywords: ${lsiKeywords.join(', ')}`
+    : ''
+
+  const linksReq = internalLinks && internalLinks.length > 0
+    ? `\n- Weave in a MAXIMUM of 2 to 3 of these internal links naturally with relevant anchor text:\n${internalLinks.join('\n')}`
+    : ''
+
+  const audReq = targetAudience && targetAudience.trim().length > 0
+    ? `\n- Ensure the content is tailored for this target audience: ${targetAudience.trim()}`
+    : ''
+
+  let lengthReq = '- Maintain the original core message and facts, but improve the structure and flow.'
+  if (lengthStrategy === 'make_longer') {
+    lengthReq = '- Make the article significantly longer and more comprehensive than the original while maintaining the core message. Expand on concepts and add valuable depth. The final output MUST be exactly between 2,000 to 3,000 words long.'
+  } else if (lengthStrategy === 'make_shorter') {
+    lengthReq = '- Summarize and make the article more concise than the original while keeping the core message intact. Get straight to the point.'
+  }
+
+  const prompt = `You are an expert SEO content strategist and copywriter.
+I have an existing piece of content. I want you to completely rewrite it to dramatically improve its SEO, readability, and engagement.
+
+Goal: Rank highly for the focus keyword "${focusKeyword}".
+
+Requirements:
+- Language: ${language}
+- Tone: ${tone}${audReq}
+${lengthReq}
+- Do NOT use # (H1) anywhere; the post title is already an H1. 
+- Add compelling Markdown headings starting from ## (H2), down to #### (H4) max.
+- Strongly optimize for "${focusKeyword}" in at least one H2, the introduction, and naturally throughout the text.${lsiReq}${linksReq}
+- Use short paragraphs, bullet points, and bold text for readability.
+- Keep paragraphs SHORT — 2-4 sentences max, then break
+- Use **bold** VERY sparingly — at most 2-3 bolded phrases per entire article, only for truly key points
+- NEVER use colons (:) in headings
+- Leave breathing room — don't wall-of-text the reader
+- Write scannable content that's easy to skim
+${buildAvoidancePrompt()}
+
+- Do NOT output any conversational filler (like "Here is the rewritten article"). output ONLY the markdown content.
+
+Here is the original content to rewrite:
+
+${originalContent.substring(0, 15000)} /* Truncate to avoid token limits if too large */
+
+Please rewrite this content now:`
+
   return await callGeminiAPI(apiKey, prompt, { model })
 }
 

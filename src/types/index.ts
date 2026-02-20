@@ -9,6 +9,17 @@ export interface ContentRequest {
   language: string
 }
 
+export interface RewriteRequest {
+  postUrl: string
+  focusKeyword: string
+  lsiKeywords: string[]
+  sitemapLinks?: string[]
+  tone: 'professional' | 'casual' | 'friendly'
+  language: string
+  targetAudience?: string
+  lengthStrategy?: 'keep_same' | 'make_longer' | 'make_shorter'
+}
+
 export interface GeneratedContent {
   title: string
   content: string
@@ -25,6 +36,8 @@ export interface GeneratedContent {
   targetWordCount: number
   internalLinks?: string[]
   imagePrompts?: ImagePrompt[]
+  isRewrite?: boolean
+  originalUrl?: string
 }
 
 export interface ImagePrompt {
@@ -40,3 +53,4 @@ export interface SEOAnalysis {
   readabilityScore: number
   headingCount: { h1: number; h2: number; h3: number }
 }
+
