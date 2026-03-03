@@ -1,12 +1,13 @@
 import { useToast } from '../contexts/ToastContext'
 import { ImagePrompt } from '../types'
+import { ImageIcon } from 'lucide-react'
 
 export default function ImagePrompts({ prompts, loading }: { prompts: ImagePrompt[]; loading?: boolean }) {
     const { showToast } = useToast()
 
     return (
         <div className="card">
-            <h3 className="text-lg font-semibold text-forest dark:text-forest-light mb-4">🖼️ Image Prompts</h3>
+            <h3 className="text-lg font-semibold text-forest dark:text-forest-light mb-4 flex items-center gap-2"><ImageIcon className="w-5 h-5" /> Image Prompts</h3>
             {loading ? (
                 <div className="flex items-center gap-3 text-sm text-earth-dark/60 dark:text-light-cream/60 py-4">
                     <div className="w-5 h-5 border-2 border-forest/20 border-t-forest dark:border-t-forest-light rounded-full animate-spin" />

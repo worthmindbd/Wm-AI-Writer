@@ -4,7 +4,7 @@ export interface ContentRequest {
   targetAudience: string
   title: string
   wordCount: number
-  tone: 'professional' | 'casual' | 'friendly'
+  tone: 'professional' | 'casual' | 'friendly' | 'witty' | 'inspirational' | 'bold' | 'empathetic' | 'storytelling'
   format: 'blog-post' | 'article' | 'product-description'
   language: string
 }
@@ -14,7 +14,7 @@ export interface RewriteRequest {
   focusKeyword: string
   lsiKeywords: string[]
   sitemapLinks?: string[]
-  tone: 'professional' | 'casual' | 'friendly'
+  tone: 'professional' | 'casual' | 'friendly' | 'witty' | 'inspirational' | 'bold' | 'empathetic' | 'storytelling'
   language: string
   targetAudience?: string
   lengthStrategy?: 'keep_same' | 'make_longer' | 'make_shorter'
@@ -29,7 +29,7 @@ export interface GeneratedContent {
   readingTime: number
   focusKeyword: string
   lsiKeywords: string[]
-  tone: 'professional' | 'casual' | 'friendly'
+  tone: 'professional' | 'casual' | 'friendly' | 'witty' | 'inspirational' | 'bold' | 'empathetic' | 'storytelling'
   format: 'blog-post' | 'article' | 'product-description'
   language: string
   targetAudience: string

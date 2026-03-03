@@ -1,3 +1,5 @@
+import { PenLine, RefreshCw } from 'lucide-react'
+
 interface HeroProps { onChooseMode: (mode: 'write' | 'rewrite') => void; compact?: boolean }
 
 export default function Hero({ onChooseMode, compact = false }: HeroProps) {
@@ -32,11 +34,11 @@ export default function Hero({ onChooseMode, compact = false }: HeroProps) {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button onClick={() => onChooseMode('write')} className="btn-primary text-lg px-10 py-4 rounded-2xl shadow-xl shadow-forest/20 hover:shadow-2xl hover:shadow-forest/30">
-            ✍️ Write New Content
+          <button onClick={() => onChooseMode('write')} className="btn-primary text-lg px-10 py-4 rounded-2xl shadow-xl shadow-forest/20 hover:shadow-2xl hover:shadow-forest/30 inline-flex items-center justify-center gap-2">
+            <PenLine className="w-5 h-5" /> Write New Content
           </button>
-          <button onClick={() => onChooseMode('rewrite')} className="btn-secondary text-lg px-10 py-4 rounded-2xl shadow-lg">
-            🔄 Rewrite Existing Post
+          <button onClick={() => onChooseMode('rewrite')} className="btn-secondary text-lg px-10 py-4 rounded-2xl shadow-lg inline-flex items-center justify-center gap-2">
+            <RefreshCw className="w-5 h-5" /> Rewrite Existing Post
           </button>
         </div>
 

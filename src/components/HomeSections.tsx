@@ -1,10 +1,12 @@
+import { PenLine, RefreshCw, Image, Globe, Link2, ClipboardCopy, Heart } from 'lucide-react'
+
 const FEATURES = [
-    { icon: '📝', title: 'AI Content Writing', desc: 'Generate SEO-optimized articles from scratch with focus keywords and LSI integration.' },
-    { icon: '🔄', title: 'Post Rewriting', desc: 'Paste any blog post URL and rewrite it with better SEO, keywords, and structure.' },
-    { icon: '🖼️', title: 'Image Prompts', desc: 'Get AI-generated image prompts mapped to each section of your content.' },
-    { icon: '🌐', title: 'Multi-Language', desc: 'Write content in English, Spanish, French, German, Italian, Portuguese and more.' },
-    { icon: '🔗', title: 'Internal Linking', desc: 'Provide your sitemap and let AI weave in relevant internal links automatically.' },
-    { icon: '📋', title: 'WordPress Ready', desc: 'Copy formatted content directly to WordPress, or download as .txt or .md files.' },
+    { icon: <PenLine className="w-7 h-7" />, title: 'AI Content Writing', desc: 'Generate SEO-optimized articles from scratch with focus keywords and LSI integration.' },
+    { icon: <RefreshCw className="w-7 h-7" />, title: 'Post Rewriting', desc: 'Paste any blog post URL and rewrite it with better SEO, keywords, and structure.' },
+    { icon: <Image className="w-7 h-7" />, title: 'Image Prompts', desc: 'Get AI-generated image prompts mapped to each section of your content.' },
+    { icon: <Globe className="w-7 h-7" />, title: 'Multi-Language', desc: 'Write content in English, Spanish, French, German, Italian, Portuguese and more.' },
+    { icon: <Link2 className="w-7 h-7" />, title: 'Internal Linking', desc: 'Provide your sitemap and let AI weave in relevant internal links automatically.' },
+    { icon: <ClipboardCopy className="w-7 h-7" />, title: 'WordPress Ready', desc: 'Copy formatted content directly to WordPress, or download as .txt or .md files.' },
 ]
 
 const STEPS = [
@@ -62,7 +64,7 @@ export default function HomeSections() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {FEATURES.map((f) => (
                         <div key={f.title} className="card group hover:shadow-xl hover:shadow-forest/10 dark:hover:shadow-forest-light/5 transition-all duration-300">
-                            <div className="text-3xl mb-3 group-hover:scale-110 transition-transform duration-300">{f.icon}</div>
+                            <div className="w-12 h-12 rounded-xl bg-forest/10 dark:bg-forest-light/10 text-forest dark:text-forest-light flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">{f.icon}</div>
                             <h3 className="text-base font-semibold text-earth-dark dark:text-light-cream mb-1.5">{f.title}</h3>
                             <p className="text-sm text-earth-dark/50 dark:text-light-cream/50 leading-relaxed">{f.desc}</p>
                         </div>
@@ -91,8 +93,8 @@ export default function HomeSections() {
 
             {/* Footer */}
             <footer className="text-center pt-12 pb-8 border-t border-earth-dark/10 dark:border-light-cream/10">
-                <p className="text-sm text-earth-dark/60 dark:text-light-cream/60 mb-2">
-                    Wm AI Writer — Built with ❤️ using Google Gemini AI
+                <p className="text-sm text-earth-dark/60 dark:text-light-cream/60 mb-2 flex items-center justify-center gap-1.5">
+                    Wm AI Writer — Built with <Heart className="w-4 h-4 text-red-500 fill-red-500" /> using Google Gemini AI
                 </p>
                 <p className="text-sm font-medium text-earth-dark dark:text-light-cream">
                     Developed by <a href="https://www.facebook.com/prowebfixer" target="_blank" rel="noopener noreferrer" className="text-forest dark:text-forest-light hover:underline font-bold">Rashedul</a>

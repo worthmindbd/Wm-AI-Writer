@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Sparkles, ArrowLeft } from 'lucide-react'
 import { useApiKey } from '../contexts/ApiKeyContext'
 import { useToast } from '../contexts/ToastContext'
 import { generateTitles, generateContent, generateMetaDescription, generateLSIKeywords } from '../services/gemini'
@@ -19,7 +20,7 @@ export default function ContentInput({ onContentGenerated }: Props) {
   const [selectedTitle, setSelectedTitle] = useState('')
   const [customTitle, setCustomTitle] = useState('')
   const [wordCount, setWordCount] = useState(1000)
-  const [tone, setTone] = useState<'professional' | 'casual' | 'friendly'>('professional')
+  const [tone, setTone] = useState<'professional' | 'casual' | 'friendly' | 'witty' | 'inspirational' | 'bold' | 'empathetic' | 'storytelling'>('professional')
   const [format, setFormat] = useState<'blog-post' | 'article' | 'product-description'>('blog-post')
   const [language, setLanguage] = useState('English')
   const [sitemapUrl, setSitemapUrl] = useState('')
@@ -103,7 +104,7 @@ export default function ContentInput({ onContentGenerated }: Props) {
                     <span className="flex items-center gap-2">
                       <span className="w-4 h-4 border-2 border-forest/20 border-t-forest dark:border-t-forest-light rounded-full animate-spin" />
                     </span>
-                  ) : '✨ Suggest'}
+                  ) : <><Sparkles className="w-4 h-4" /> Suggest</>}
                 </button>
               </div>
               <p className="text-xs text-earth-dark/40 dark:text-light-cream/40 mt-1.5">LSI keywords help improve SEO by providing context.</p>
@@ -172,7 +173,7 @@ export default function ContentInput({ onContentGenerated }: Props) {
               <input type="text" value={customTitle} onChange={e => setCustomTitle(e.target.value)} placeholder="Enter your custom title" className="input-field mb-3 text-base" />
               <button onClick={() => { if (customTitle.trim()) { setSelectedTitle(customTitle.trim()); setStep('options') } }} disabled={!customTitle.trim()} className="btn-secondary w-full">Use Custom Title</button>
             </div>
-            <button onClick={() => setStep('keywords')} className="w-full py-2 text-sm text-earth-dark/50 dark:text-light-cream/50 hover:text-forest dark:hover:text-forest-light transition-colors">← Back to Keywords</button>
+            <button onClick={() => setStep('keywords')} className="w-full py-2 text-sm text-earth-dark/50 dark:text-light-cream/50 hover:text-forest dark:hover:text-forest-light transition-colors inline-flex items-center justify-center gap-1"><ArrowLeft className="w-4 h-4" /> Back to Keywords</button>
           </div>
         </>
       )}
@@ -195,6 +196,8 @@ export default function ContentInput({ onContentGenerated }: Props) {
                 <label htmlFor="tone" className="block text-xs font-medium mb-1.5 text-earth-dark/60 dark:text-light-cream/60">Tone</label>
                 <select id="tone" value={tone} onChange={e => setTone(e.target.value as typeof tone)} className="input-field text-sm">
                   <option value="professional">Professional</option><option value="casual">Casual</option><option value="friendly">Friendly</option>
+                  <option value="witty">Witty</option><option value="inspirational">Inspirational</option><option value="bold">Bold</option>
+                  <option value="empathetic">Empathetic</option><option value="storytelling">Storytelling</option>
                 </select>
               </div>
               <div>
@@ -211,7 +214,7 @@ export default function ContentInput({ onContentGenerated }: Props) {
               </div>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setStep('titles')} className="btn-secondary flex-1 text-sm">← Back</button>
+              <button onClick={() => setStep('titles')} className="btn-secondary flex-1 text-sm inline-flex items-center justify-center gap-1"><ArrowLeft className="w-4 h-4" /> Back</button>
               <button onClick={handleGenerateContent} disabled={loading} className="btn-primary flex-1 text-sm">Generate Content</button>
             </div>
           </div>

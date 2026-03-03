@@ -3,6 +3,7 @@ import { GeneratedContent, ImagePrompt } from '../types'
 import { useApiKey } from '../contexts/ApiKeyContext'
 import { useToast } from '../contexts/ToastContext'
 import { generateContent, generateMetaDescription, generateImagePrompts } from '../services/gemini'
+import { ArrowLeft, FileText, Clock, Link2, Pencil, Copy, Download, FileDown, RefreshCw, Check, X } from 'lucide-react'
 import SEOAnalysis from './SEOAnalysis'
 import ImagePromptsPanel from './ImagePrompts'
 
@@ -100,14 +101,14 @@ export default function ContentGenerator({ content, onBack, onContentUpdate }: P
       <div className="card mb-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
           <h2 className="text-xl font-bold text-forest dark:text-forest-light">Generated Content</h2>
-          <button onClick={onBack} className="text-sm text-earth-dark/50 dark:text-light-cream/50 hover:text-forest dark:hover:text-forest-light transition-colors">← Back to Input</button>
+          <button onClick={onBack} className="text-sm text-earth-dark/50 dark:text-light-cream/50 hover:text-forest dark:hover:text-forest-light transition-colors inline-flex items-center gap-1"><ArrowLeft className="w-4 h-4" /> Back to Input</button>
         </div>
 
         <h1 className="text-2xl sm:text-3xl font-bold text-earth-dark dark:text-light-cream mb-3">{content.title}</h1>
         <div className="flex flex-wrap gap-3 text-sm text-earth-dark/50 dark:text-light-cream/50 mb-4">
-          <span>📝 {displayContent.wordCount} words</span>
-          <span>⏱️ {content.readingTime} min read</span>
-          <span>🔗 <span className="font-mono text-xs">{content.urlSlug}</span></span>
+          <span className="inline-flex items-center gap-1"><FileText className="w-3.5 h-3.5" /> {displayContent.wordCount} words</span>
+          <span className="inline-flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {content.readingTime} min read</span>
+          <span className="inline-flex items-center gap-1"><Link2 className="w-3.5 h-3.5" /> <span className="font-mono text-xs">{content.urlSlug}</span></span>
         </div>
 
         {/* Meta Description */}
@@ -120,16 +121,16 @@ export default function ContentGenerator({ content, onBack, onContentUpdate }: P
         <div className="flex flex-wrap gap-2">
           {!isEditing ? (
             <>
-              <button onClick={() => setIsEditing(true)} className="btn-secondary text-xs px-4">✏️ Edit</button>
-              <button onClick={handleCopy} className="btn-secondary text-xs px-4">📋 Copy</button>
-              <button onClick={() => handleDownload('txt')} className="btn-secondary text-xs px-4">💾 .txt</button>
-              <button onClick={() => handleDownload('md')} className="btn-secondary text-xs px-4">📄 .md</button>
-              <button onClick={handleRegenerate} disabled={regenerating} className="btn-primary text-xs px-4">🔄 Regenerate</button>
+              <button onClick={() => setIsEditing(true)} className="btn-secondary text-xs px-4 inline-flex items-center gap-1.5"><Pencil className="w-3.5 h-3.5" /> Edit</button>
+              <button onClick={handleCopy} className="btn-secondary text-xs px-4 inline-flex items-center gap-1.5"><Copy className="w-3.5 h-3.5" /> Copy</button>
+              <button onClick={() => handleDownload('txt')} className="btn-secondary text-xs px-4 inline-flex items-center gap-1.5"><Download className="w-3.5 h-3.5" /> .txt</button>
+              <button onClick={() => handleDownload('md')} className="btn-secondary text-xs px-4 inline-flex items-center gap-1.5"><FileDown className="w-3.5 h-3.5" /> .md</button>
+              <button onClick={handleRegenerate} disabled={regenerating} className="btn-primary text-xs px-4 inline-flex items-center gap-1.5"><RefreshCw className="w-3.5 h-3.5" /> Regenerate</button>
             </>
           ) : (
             <>
-              <button onClick={() => setIsEditing(false)} className="btn-primary text-xs px-5">✓ Done</button>
-              <button onClick={() => { setEditedContent(content.content); setIsEditing(false) }} className="btn-secondary text-xs px-5">✗ Cancel</button>
+              <button onClick={() => setIsEditing(false)} className="btn-primary text-xs px-5 inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5" /> Done</button>
+              <button onClick={() => { setEditedContent(content.content); setIsEditing(false) }} className="btn-secondary text-xs px-5 inline-flex items-center gap-1.5"><X className="w-3.5 h-3.5" /> Cancel</button>
             </>
           )}
         </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Sparkles, ArrowRight, CheckCircle } from 'lucide-react'
 import { useApiKey } from '../contexts/ApiKeyContext'
 import { useToast } from '../contexts/ToastContext'
 import { generateLSIKeywords, fetchPostContent, rewriteContent, generateMetaDescription } from '../services/gemini'
@@ -16,7 +17,7 @@ export default function RewriteInput({ onContentRewritten }: Props) {
     const [postUrl, setPostUrl] = useState('')
     const [focusKeyword, setFocusKeyword] = useState('')
     const [lsiKeywords, setLsiKeywords] = useState('')
-    const [tone, setTone] = useState<'professional' | 'casual' | 'friendly'>('professional')
+    const [tone, setTone] = useState<'professional' | 'casual' | 'friendly' | 'witty' | 'inspirational' | 'bold' | 'empathetic' | 'storytelling'>('professional')
     const [language, setLanguage] = useState('English')
     const [targetAudience, setTargetAudience] = useState('')
     const [lengthStrategy, setLengthStrategy] = useState<'keep_same' | 'make_longer' | 'make_shorter'>('keep_same')
@@ -162,7 +163,7 @@ export default function RewriteInput({ onContentRewritten }: Props) {
                                         <span className="flex items-center gap-2">
                                             <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" /> Fetching
                                         </span>
-                                    ) : 'Next ➔'}
+                                    ) : <span className="inline-flex items-center gap-1.5">Next <ArrowRight className="w-4 h-4" /></span>}
                                 </button>
                             </div>
                             {!postUrl.startsWith('http') && postUrl.trim().length > 0 && (
@@ -239,7 +240,7 @@ export default function RewriteInput({ onContentRewritten }: Props) {
                                 >
                                     {lsiLoading ? (
                                         <span className="w-4 h-4 border-2 border-forest/20 border-t-forest dark:border-t-forest-light rounded-full animate-spin inline-block" />
-                                    ) : '✨ Suggest'}
+                                    ) : <><Sparkles className="w-4 h-4" /> Suggest</>}
                                 </button>
                             </div>
                         </div>
@@ -273,12 +274,12 @@ export default function RewriteInput({ onContentRewritten }: Props) {
                                 </button>
                             </div>
                             {sitemapLinks.length > 0 && (
-                                <p className="text-xs text-green-600 dark:text-green-400 mt-2 font-medium">✓ {sitemapLinks.length} internal links ready to be woven in.</p>
+                                <p className="text-xs text-green-600 dark:text-green-400 mt-2 font-medium inline-flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" /> {sitemapLinks.length} internal links ready to be woven in.</p>
                             )}
                         </div>
 
                         <button onClick={() => setStep('options')} disabled={!focusKeyword.trim()} className="btn-primary w-full text-base mt-2">
-                            Continue to Options ➔
+                            Continue to Options <ArrowRight className="w-4 h-4 inline" />
                         </button>
                     </div>
                 </>
@@ -299,6 +300,11 @@ export default function RewriteInput({ onContentRewritten }: Props) {
                                     <option value="professional">Professional & Authoritative</option>
                                     <option value="casual">Casual & Conversational</option>
                                     <option value="friendly">Friendly & Engaging</option>
+                                    <option value="witty">Witty & Clever</option>
+                                    <option value="inspirational">Inspirational & Motivating</option>
+                                    <option value="bold">Bold & Direct</option>
+                                    <option value="empathetic">Empathetic & Understanding</option>
+                                    <option value="storytelling">Storytelling & Narrative</option>
                                 </select>
                             </div>
                             <div>

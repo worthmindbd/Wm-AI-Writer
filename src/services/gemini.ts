@@ -1,4 +1,6 @@
 import { buildAvoidancePrompt } from '../utils/ai-phrases'
+import { buildGreetingPrompt, getToneDescription } from '../utils/greetings'
+import type { ToneType } from '../utils/greetings'
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models'
 
@@ -107,6 +109,8 @@ export async function generateContent(apiKey: string, params: {
   wordCount: number; tone: string; format: string; language: string; targetAudience?: string; internalLinks?: string[]; model?: string
 }): Promise<string> {
   const { title, focusKeyword, lsiKeywords, wordCount, tone, format, language, targetAudience, internalLinks, model } = params
+  const toneKey = tone as ToneType
+  const toneDesc = getToneDescription(toneKey)
   const audienceLine = targetAudience ? `\nTarget Audience: ${targetAudience}` : ''
   const audienceReq = targetAudience ? `\n- Tailor the language, examples, and depth to suit the target audience` : ''
 
@@ -118,21 +122,31 @@ export async function generateContent(apiKey: string, params: {
     internalLinkReq = `\n- Naturally embed a MAXIMUM of 2 to 3 internal links from the list above as markdown hyperlinks [anchor text](url) where they are contextually relevant`
   }
 
-  const prompt = `Write a ${format} titled "${title}" in ${language}.
+  const prompt = `You are a top-tier content creator and SEO copywriter. Write a ${format} titled "${title}" in ${language}.
 
 Focus Keyword: "${focusKeyword}"
 Related Keywords: ${lsiKeywords.join(', ')}
-Tone: ${tone}
+Tone: ${toneDesc}
 Target Word Count: ${wordCount}${audienceLine}${internalLinkSection}
+${buildGreetingPrompt(toneKey)}
 
 Content requirements:
-- Start with a short, engaging intro paragraph (2-3 sentences, no heading)
+- Start with a warm greeting that matches the tone, then flow into a short, engaging intro paragraph (2-3 sentences, no heading)
+- The greeting + intro should hook the reader immediately — address their pain point, curiosity, or desire
 - Do NOT use # (H1) anywhere; the post title is already an H1. Start with ## (H2) and go down to #### (H4) max.
 - Use ## for main section headings — keep them SHORT (3-5 words, no colons)
 - Use ### sparingly, only when a section truly needs sub-points
-- Write a brief conclusion with a call-to-action
+- Every section should deliver real value — no filler content or obvious statements
+- Include actionable tips, real examples, or relatable scenarios where possible
+- Write a brief conclusion with a clear call-to-action
 - Naturally work in the focus keyword and related keywords
 - Use markdown formatting${audienceReq}${internalLinkReq}
+
+Tone & Voice rules:
+- Maintain the ${tone} tone consistently throughout the entire article
+- The greeting sets the emotional tone — carry that energy through every paragraph
+- Use language and expressions that feel natural for this tone
+- Match sentence structure to the tone (e.g., short punchy for bold, flowing for storytelling)
 
 Formatting rules (VERY IMPORTANT):
 - Keep paragraphs SHORT — 2-4 sentences max, then break
@@ -187,6 +201,8 @@ export async function rewriteContent(apiKey: string, params: {
   targetAudience?: string; lengthStrategy?: 'keep_same' | 'make_longer' | 'make_shorter'
 }): Promise<string> {
   const { originalContent, focusKeyword, lsiKeywords, tone, language, internalLinks, model, targetAudience, lengthStrategy } = params
+  const toneKey = tone as ToneType
+  const toneDesc = getToneDescription(toneKey)
 
   const lsiReq = lsiKeywords.length > 0
     ? `\n- Naturally integrate these LSI keywords: ${lsiKeywords.join(', ')}`
@@ -207,27 +223,40 @@ export async function rewriteContent(apiKey: string, params: {
     lengthReq = '- Summarize and make the article more concise than the original while keeping the core message intact. Get straight to the point.'
   }
 
-  const prompt = `You are an expert SEO content strategist and copywriter.
+  const prompt = `You are a top-tier content creator, SEO strategist, and expert copywriter.
 I have an existing piece of content. I want you to completely rewrite it to dramatically improve its SEO, readability, and engagement.
 
 Goal: Rank highly for the focus keyword "${focusKeyword}".
 
 Requirements:
 - Language: ${language}
-- Tone: ${tone}${audReq}
+- Tone: ${toneDesc}${audReq}
 ${lengthReq}
-- Do NOT use # (H1) anywhere; the post title is already an H1. 
+${buildGreetingPrompt(toneKey)}
+
+Structure & SEO:
+- Start the rewritten article with a warm greeting that matches the ${tone} tone, then flow into an engaging intro
+- Do NOT use # (H1) anywhere; the post title is already an H1.
 - Add compelling Markdown headings starting from ## (H2), down to #### (H4) max.
 - Strongly optimize for "${focusKeyword}" in at least one H2, the introduction, and naturally throughout the text.${lsiReq}${linksReq}
-- Use short paragraphs, bullet points, and bold text for readability.
+- Every section should deliver real value — no filler content
+- Include actionable insights, examples, or relatable scenarios
+
+Tone & Voice:
+- Maintain the ${tone} tone consistently throughout the entire article
+- The greeting sets the emotional tone — carry that energy through every paragraph
+- Use language and expressions that feel natural for this tone
+
+Formatting:
 - Keep paragraphs SHORT — 2-4 sentences max, then break
 - Use **bold** VERY sparingly — at most 2-3 bolded phrases per entire article, only for truly key points
 - NEVER use colons (:) in headings
 - Leave breathing room — don't wall-of-text the reader
 - Write scannable content that's easy to skim
+- Mix in bullet points or numbered lists to break up text
 ${buildAvoidancePrompt()}
 
-- Do NOT output any conversational filler (like "Here is the rewritten article"). output ONLY the markdown content.
+- Do NOT output any conversational filler (like "Here is the rewritten article"). Output ONLY the markdown content.
 
 Here is the original content to rewrite:
 

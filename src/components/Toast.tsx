@@ -1,4 +1,5 @@
 import { useToast } from '../contexts/ToastContext'
+import { CheckCircle, XCircle, Info } from 'lucide-react'
 
 export default function ToastContainer() {
     const { toasts } = useToast()
@@ -10,7 +11,7 @@ export default function ToastContainer() {
           ${t.type === 'success' ? 'text-green-700 dark:text-green-400' : ''}
           ${t.type === 'error' ? 'text-red-700 dark:text-red-400' : ''}
           ${t.type === 'info' ? 'text-forest dark:text-forest-light' : ''}`}>
-                    <span>{t.type === 'success' ? '✓' : t.type === 'error' ? '✗' : 'ℹ'}</span>
+                    {t.type === 'success' ? <CheckCircle className="w-4 h-4 flex-shrink-0" /> : t.type === 'error' ? <XCircle className="w-4 h-4 flex-shrink-0" /> : <Info className="w-4 h-4 flex-shrink-0" />}
                     {t.message}
                 </div>
             ))}

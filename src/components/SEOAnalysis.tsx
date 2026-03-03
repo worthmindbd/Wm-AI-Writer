@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { GeneratedContent, SEOAnalysis } from '../types'
+import { BarChart3, Lightbulb } from 'lucide-react'
 
 function analyze(c: GeneratedContent): SEOAnalysis {
     const text = c.content.toLowerCase()
@@ -55,7 +56,7 @@ export default function SEOAnalysisPanel({ content }: { content: GeneratedConten
     const a = useMemo(() => analyze(content), [content])
     return (
         <div className="card sticky top-20">
-            <h3 className="text-lg font-semibold text-forest dark:text-forest-light mb-4">📊 SEO Analysis</h3>
+            <h3 className="text-lg font-semibold text-forest dark:text-forest-light mb-4 flex items-center gap-2"><BarChart3 className="w-5 h-5" /> SEO Analysis</h3>
             <div className="space-y-4">
                 <Bar score={a.seoScore} label="SEO Score" />
                 <Bar score={a.readabilityScore} label="Readability" />
@@ -110,7 +111,7 @@ export default function SEOAnalysisPanel({ content }: { content: GeneratedConten
                 </div>
 
                 <div className="border-t border-white/20 dark:border-white/5 pt-3">
-                    <p className="text-xs font-medium text-forest dark:text-forest-light mb-2">💡 Suggestions</p>
+                    <p className="text-xs font-medium text-forest dark:text-forest-light mb-2 flex items-center gap-1.5"><Lightbulb className="w-3.5 h-3.5" /> Suggestions</p>
                     <ul className="text-xs text-earth-dark/60 dark:text-light-cream/60 space-y-1">
                         <li>• Link to authoritative sources about "{content.focusKeyword}"</li>
                         <li>• Add internal links to related content</li>
